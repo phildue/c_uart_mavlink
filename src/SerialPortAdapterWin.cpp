@@ -104,7 +104,18 @@ bool SerialPortAdapterWin::setup(int baud, int data_bits, int stop_bits, bool pa
 }
 
 int SerialPortAdapterWin::write(char *buf, unsigned len) {
-    return 0;
+    DWORD  dNoOFBytestoWrite;              // No of bytes to write into the port
+    DWORD  dNoOfBytesWritten = 0;          // No of bytes written to the port
+
+    dNoOFBytestoWrite = sizeof(buf); // Calculating the no of bytes to write into the port
+
+    Status = WriteFile(hComm,               // Handle to the Serialport
+                       buf,            // Data to be written to the port
+                       dNoOFBytestoWrite,   // No of bytes to write into the port
+                       &dNoOfBytesWritten,  // No of bytes written to the port
+                       NULL);
+
+    return Status;
 }
 
 int SerialPortAdapterWin::read(uint8_t *ch) {

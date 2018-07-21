@@ -266,7 +266,7 @@ read_messages()
 
 				case MAVLINK_MSG_ID_HEARTBEAT:
 				{
-					//printf("MAVLINK_MSG_ID_HEARTBEAT\n");
+					printf("MAVLINK_MSG_ID_HEARTBEAT\n");
 					mavlink_msg_heartbeat_decode(&message, &(current_messages.heartbeat));
 					current_messages.time_stamps.heartbeat = get_time_usec();
 					this_timestamps.heartbeat = current_messages.time_stamps.heartbeat;
@@ -275,7 +275,7 @@ read_messages()
 
 				case MAVLINK_MSG_ID_SYS_STATUS:
 				{
-					//printf("MAVLINK_MSG_ID_SYS_STATUS\n");
+					printf("MAVLINK_MSG_ID_SYS_STATUS\n");
 					mavlink_msg_sys_status_decode(&message, &(current_messages.sys_status));
 					current_messages.time_stamps.sys_status = get_time_usec();
 					this_timestamps.sys_status = current_messages.time_stamps.sys_status;
@@ -293,7 +293,7 @@ read_messages()
 
 				case MAVLINK_MSG_ID_RADIO_STATUS:
 				{
-					//printf("MAVLINK_MSG_ID_RADIO_STATUS\n");
+					printf("MAVLINK_MSG_ID_RADIO_STATUS\n");
 					mavlink_msg_radio_status_decode(&message, &(current_messages.radio_status));
 					current_messages.time_stamps.radio_status = get_time_usec();
 					this_timestamps.radio_status = current_messages.time_stamps.radio_status;
@@ -302,7 +302,7 @@ read_messages()
 
 				case MAVLINK_MSG_ID_LOCAL_POSITION_NED:
 				{
-					//printf("MAVLINK_MSG_ID_LOCAL_POSITION_NED\n");
+					printf("MAVLINK_MSG_ID_LOCAL_POSITION_NED\n");
 					mavlink_msg_local_position_ned_decode(&message, &(current_messages.local_position_ned));
 					current_messages.time_stamps.local_position_ned = get_time_usec();
 					this_timestamps.local_position_ned = current_messages.time_stamps.local_position_ned;
@@ -320,7 +320,7 @@ read_messages()
 
 				case MAVLINK_MSG_ID_POSITION_TARGET_LOCAL_NED:
 				{
-					//printf("MAVLINK_MSG_ID_POSITION_TARGET_LOCAL_NED\n");
+					printf("MAVLINK_MSG_ID_POSITION_TARGET_LOCAL_NED\n");
 					mavlink_msg_position_target_local_ned_decode(&message, &(current_messages.position_target_local_ned));
 					current_messages.time_stamps.position_target_local_ned = get_time_usec();
 					this_timestamps.position_target_local_ned = current_messages.time_stamps.position_target_local_ned;
@@ -329,7 +329,7 @@ read_messages()
 
 				case MAVLINK_MSG_ID_POSITION_TARGET_GLOBAL_INT:
 				{
-					//printf("MAVLINK_MSG_ID_POSITION_TARGET_GLOBAL_INT\n");
+					printf("MAVLINK_MSG_ID_POSITION_TARGET_GLOBAL_INT\n");
 					mavlink_msg_position_target_global_int_decode(&message, &(current_messages.position_target_global_int));
 					current_messages.time_stamps.position_target_global_int = get_time_usec();
 					this_timestamps.position_target_global_int = current_messages.time_stamps.position_target_global_int;
@@ -338,7 +338,7 @@ read_messages()
 
 				case MAVLINK_MSG_ID_HIGHRES_IMU:
 				{
-					//printf("MAVLINK_MSG_ID_HIGHRES_IMU\n");
+					printf("MAVLINK_MSG_ID_HIGHRES_IMU\n");
 					mavlink_msg_highres_imu_decode(&message, &(current_messages.highres_imu));
 					current_messages.time_stamps.highres_imu = get_time_usec();
 					this_timestamps.highres_imu = current_messages.time_stamps.highres_imu;
@@ -347,16 +347,27 @@ read_messages()
 
 				case MAVLINK_MSG_ID_ATTITUDE:
 				{
-					//printf("MAVLINK_MSG_ID_ATTITUDE\n");
+					printf("MAVLINK_MSG_ID_ATTITUDE\n");
 					mavlink_msg_attitude_decode(&message, &(current_messages.attitude));
 					current_messages.time_stamps.attitude = get_time_usec();
 					this_timestamps.attitude = current_messages.time_stamps.attitude;
+					printf("Received: %f | %f | %f | %f | %f | %f \n",current_messages.attitude.roll,current_messages.attitude.pitch,current_messages.attitude.yaw,
+                    current_messages.attitude.rollspeed,current_messages.attitude.pitchspeed,current_messages.attitude.yawspeed);
 					break;
 				}
 
+                case MAVLINK_MSG_ID_ALTITUDE:
+                    printf("MAVLINK_MSG_ID_ALTITUDE\n");
+                    mavlink_msg_altitude_decode(&message, &(current_messages.altitude));
+                    current_messages.time_stamps.altitude = get_time_usec();
+                    this_timestamps.altitude = current_messages.time_stamps.altitude;
+                    printf("Received: %f | %f | %f | %f | %f | %f \n",current_messages.altitude.altitude_amsl,current_messages.altitude.altitude_local,current_messages.altitude.altitude_monotonic,
+                    current_messages.altitude.altitude_relative,current_messages.altitude.altitude_terrain,current_messages.altitude.bottom_clearance);
+
+
 				default:
 				{
-					// printf("Warning, did not handle message id %i\n",message.msgid);
+					printf("Warning, did not handle message id %i: %p\n",message.msgid,message.payload64);
 					break;
 				}
 
@@ -440,6 +451,7 @@ write_setpoint()
 	// --------------------------------------------------------------------------
 
 	// do the write
+
 	int len = write_message(message);
 
 	// check the write
@@ -630,7 +642,7 @@ start()
 	// --------------------------------------------------------------------------
 	//   GET INITIAL POSITION
 	// --------------------------------------------------------------------------
-
+/*
 	// Wait for initial position ned
 	while ( ! ( current_messages.time_stamps.local_position_ned &&
 				  current_messages.time_stamps.attitude            )  )
@@ -653,7 +665,7 @@ start()
 
 	printf("INITIAL POSITION XYZ = [ %.4f , %.4f , %.4f ] \n", initial_position.x, initial_position.y, initial_position.z);
 	printf("INITIAL POSITION YAW = %.4f \n", initial_position.yaw);
-	printf("\n");
+	printf("\n");*/
 
 	// we need this before starting the write thread
 
@@ -781,7 +793,7 @@ read_thread()
 	while ( ! time_to_exit )
 	{
 		read_messages();
-        std::this_thread::sleep_for(std::chrono::duration<double, std::micro>(100000));
+        std::this_thread::sleep_for(std::chrono::duration<double, std::micro>(10000));
 
 	}
 
