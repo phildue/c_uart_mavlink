@@ -139,8 +139,7 @@ top (int argc, char **argv)
 	/*
 	 * Now we can implement the algorithm we want on top of the autopilot interface
 	 */
-	//commands(autopilot_interface);
-    while(true){}
+	commands(autopilot_interface);
 
 	// --------------------------------------------------------------------------
 	//   THREAD and PORT SHUTDOWN
@@ -170,10 +169,24 @@ top (int argc, char **argv)
 void
 commands(MavlinkInterface &api)
 {
-
-
-
-
+    //---------------------------------------------------------------------------
+    //Send some dummy data for 2 minutes
+    //---------------------------------------------------------------------------
+    for (int i=0; i<120*2; i++){
+        mavlink_highres_imu_t imu;
+        imu.pressure_alt = (float)i;
+        imu.xacc = (float)i/1;
+        imu.yacc = (float)i/2;
+        imu.zacc = (float)i/4;
+        imu.xgyro = (float)i*3;
+        imu.ygyro = 0.0;
+        imu.zgyro = static_cast<float>(0.1 + (float)i);
+        imu.time_usec = get_time_usec();
+        mavlink_message_t message;
+        mavlink_msg_highres_imu_encode(static_cast<uint8_t>(api.system_id), static_cast<uint8_t>(api.companion_id), &message, &imu);
+        api.write_message(message);
+        std::this_thread::sleep_for(std::chrono::duration<double,std::milli>(500));
+    }
 
 }
 
