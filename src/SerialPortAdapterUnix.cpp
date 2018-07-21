@@ -15,7 +15,10 @@ SerialPortAdapterUnix() {
         throw 1;
     }
 }
-
+SerialPortAdapterUnix::~SerialPortAdapterUnix() {
+    // destroy mutex
+    pthread_mutex_destroy(&lock);
+}
 // ------------------------------------------------------------------------------
 //   Helper Function - Open Serial Port File Descriptor
 // ------------------------------------------------------------------------------

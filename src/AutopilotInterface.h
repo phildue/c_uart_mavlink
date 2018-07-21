@@ -55,12 +55,11 @@
 //   Includes
 // ------------------------------------------------------------------------------
 
-#include "serial_port.h"
+#include "SerialPort.h"
 
-#include <signal.h>
-#include <time.h>
-#include <sys/time.h>
-
+#include <csignal>
+#include <ctime>
+#include <thread>
 #include <common/mavlink.h>
 
 // ------------------------------------------------------------------------------
@@ -279,8 +278,8 @@ private:
 
 	bool time_to_exit;
 
-	pthread_t read_tid;
-	pthread_t write_tid;
+	std::thread read_tid;
+    std::thread write_tid;
 
 	mavlink_set_position_target_local_ned_t current_setpoint;
 

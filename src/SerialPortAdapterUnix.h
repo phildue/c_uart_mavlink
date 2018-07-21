@@ -14,6 +14,7 @@ public:
     int  read(uint8_t *ch) override ;
     int write(char *buf, unsigned len) override ;
     SerialPortAdapterUnix();
+    ~SerialPortAdapterUnix();
 protected:
     int  fd;
     pthread_mutex_t  lock;

@@ -35,11 +35,11 @@
  ****************************************************************************/
 
 /**
- * @file serial_port.h
+ * @file mavlink_control.h
  *
- * @brief Serial interface definition
+ * @brief An example offboard control process via mavlink, definition
  *
- * Functions for opening, closing, reading and writing via serial ports
+ * This process connects an external MAVLink UART device to send an receive data
  *
  * @author Trent Lukaczyk, <aerialhedgehog@gmail.com>
  * @author Jaycee Lock,    <jaycee.lock@gmail.com>
@@ -47,102 +47,42 @@
  *
  */
 
-#ifndef SERIAL_PORT_H_
-#define SERIAL_PORT_H_
 
 // ------------------------------------------------------------------------------
 //   Includes
 // ------------------------------------------------------------------------------
 
+#include <iostream>
+#include <cstdio>
 #include <cstdlib>
-#include <stdio.h>   // Standard input/output definitions
-#include <unistd.h>  // UNIX standard function definitions
-#include <fcntl.h>   // File control definitions
-#include <termios.h> // POSIX terminal control definitions
-#include <pthread.h> // This uses POSIX Threads
-#include <signal.h>
+#include <cmath>
+#include <cstring>
+#include <cinttypes>
+#include <fstream>
+#include <csignal>
+#include <ctime>
+
+using std::string;
+using namespace std;
 
 #include <common/mavlink.h>
-#include "SerialPortAdapter.h"
 
-
-// ------------------------------------------------------------------------------
-//   Defines
-// ------------------------------------------------------------------------------
-
-// The following two non-standard baudrates should have been defined by the system
-// If not, just fallback to number
-#ifndef B460800
-#define B460800 460800
-#endif
-
-#ifndef B921600
-#define B921600 921600
-#endif
-
-
-// Status flags
-#define SERIAL_PORT_OPEN   1;
-#define SERIAL_PORT_CLOSED 0;
-#define SERIAL_PORT_ERROR -1;
+#include "AutopilotInterface.h"
+#include "SerialPort.h"
 
 
 // ------------------------------------------------------------------------------
 //   Prototypes
 // ------------------------------------------------------------------------------
 
-//class Serial_Port;
+int main(int argc, char **argv);
+int top(int argc, char **argv);
 
+void commands(Autopilot_Interface &autopilot_interface);
+void parse_commandline(int argc, char **argv, char *&uart_name, int &baudrate);
 
-
-// ----------------------------------------------------------------------------------
-//   Serial Port Manager Class
-// ----------------------------------------------------------------------------------
-/*
- * Serial Port Class
- *
- * This object handles the opening and closing of the offboard computer's
- * serial port over which we'll communicate.  It also has methods to write
- * a byte stream buffer.  MAVlink is not used in this object yet, it's just
- * a serialization interface.  To help with read and write pthreading, it
- * gaurds any port operation with a pthread mutex.
- */
-class Serial_Port
-{
-
-public:
-
-	Serial_Port();
-	Serial_Port(const char *uart_name_, int baudrate_);
-	void initialize_defaults();
-	~Serial_Port();
-
-	bool debug;
-	const char *uart_name;
-	int  baudrate;
-	int  status;
-
-	int read_message(mavlink_message_t &message);
-	int write_message(const mavlink_message_t &message);
-
-	void open_serial();
-	void close_serial();
-
-	void start();
-	void stop();
-
-	void handle_quit( int sig );
-
-private:
-
-	int  fd;
-	mavlink_status_t lastStatus;
-
-
-};
-
-
-
-#endif // SERIAL_PORT_H_
-
+// quit handler
+Autopilot_Interface *autopilot_interface_quit;
+Serial_Port *serial_port_quit;
+void quit_handler( int sig );
 

@@ -53,7 +53,7 @@
 //   Includes
 // ------------------------------------------------------------------------------
 
-#include "mavlink_control.h"
+#include "MavlinkControl.h"
 
 
 // ------------------------------------------------------------------------------
@@ -123,7 +123,6 @@ top (int argc, char **argv)
 	 */
 	serial_port_quit         = &serial_port;
 	autopilot_interface_quit = &autopilot_interface;
-	signal(SIGINT,quit_handler);
 
 	/*
 	 * Start the port and autopilot_interface
@@ -177,7 +176,7 @@ commands(Autopilot_Interface &api)
 	// --------------------------------------------------------------------------
 
 	api.enable_offboard_control();
-	usleep(100); // give some time to let it sink in
+    std::this_thread::sleep_for(std::chrono::duration<double, std::micro>(100)); // give some time to let it sink in
 
 	// now the autopilot is accepting setpoint commands
 
@@ -220,7 +219,7 @@ commands(Autopilot_Interface &api)
 	{
 		mavlink_local_position_ned_t pos = api.current_messages.local_position_ned;
 		printf("%i CURRENT POSITION XYZ = [ % .4f , % .4f , % .4f ] \n", i, pos.x, pos.y, pos.z);
-		sleep(1);
+        std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(1000));
 	}
 
 	printf("\n");

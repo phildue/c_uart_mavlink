@@ -52,7 +52,7 @@
 //   Includes
 // ------------------------------------------------------------------------------
 
-#include "serial_port.h"
+#include "SerialPort.h"
 #include "SerialPortAdapterWin.h"
 
 
@@ -79,10 +79,7 @@ Serial_Port()
 
 Serial_Port::
 ~Serial_Port()
-{
-	// destroy mutex
-	pthread_mutex_destroy(&lock);
-}
+= default;
 
 void
 Serial_Port::
@@ -90,14 +87,13 @@ initialize_defaults()
 {
 	// Initialize attributes
 	debug  = false;
-	fd     = -1;
 	status = SERIAL_PORT_CLOSED;
 
 	uart_name = (char*)"/dev/ttyUSB0";
 	baudrate  = 57600;
 
     #ifdef WIN32
-        portAdapter = SerialPortAdapterWin();
+        portAdapter = new SerialPortAdapterWin();
     #elif __linux__
         portAdapter = SerialPortAdapterUnix();
     #endif
@@ -122,7 +118,7 @@ read_message(mavlink_message_t &message)
 	// --------------------------------------------------------------------------
 
 	// this function locks the port during read
-	int result = portAdapter.read(&cp);
+	int result = portAdapter->read(&cp);
 
 
 	// --------------------------------------------------------------------------
@@ -146,7 +142,7 @@ read_message(mavlink_message_t &message)
 	// Couldn't read from port
 	else
 	{
-		fprintf(stderr, "ERROR: Could not read from fd %d\n", fd);
+		fprintf(stderr, "ERROR: Could not read from port\n");
 	}
 
 	// --------------------------------------------------------------------------
@@ -199,7 +195,7 @@ write_message(const mavlink_message_t &message)
 	unsigned len = mavlink_msg_to_send_buffer((uint8_t*)buf, &message);
 
 	// Write buffer to serial port, locks port while writing
-	int bytesWritten = portAdapter.write(buf,len);
+	int bytesWritten = portAdapter->write(buf,len);
 
 	return bytesWritten;
 }
@@ -221,14 +217,14 @@ open_serial()
 	// --------------------------------------------------------------------------
 	printf("OPEN PORT\n");
 
-	portAdapter.open(uart_name);
+	portAdapter->open(uart_name);
 
 
 
 	// --------------------------------------------------------------------------
 	//   SETUP PORT
 	// --------------------------------------------------------------------------
-	bool success = portAdapter.setup(baudrate, 8, 1, false, false);
+	bool success = portAdapter->setup(baudrate, 8, 1, false, false);
 
 	// --------------------------------------------------------------------------
 	//   CHECK STATUS
@@ -250,8 +246,6 @@ open_serial()
 
 	printf("\n");
 
-	return;
-
 }
 
 
@@ -264,7 +258,7 @@ close_serial()
 {
 	printf("CLOSE PORT\n");
 
-	int result = portAdapter.close();
+	int result = portAdapter->close();
 
 	if ( result )
 	{
@@ -304,7 +298,7 @@ Serial_Port::
 handle_quit( int sig )
 {
 	try {
-		stop();
+		portAdapter->close();
 	}
 	catch (int error) {
 		fprintf(stderr,"Warning, could not stop serial port\n");
