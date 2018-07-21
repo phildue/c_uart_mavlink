@@ -11,10 +11,10 @@ set(SOURCES
         #src/serial.cpp
         src/MavlinkControl.cpp
         src/MavlinkControl.h
-        src/AutopilotInterface.cpp
+        src/MavlinkInterface.cpp
         src/SerialPort.cpp
         src/SerialPort.h
-        src/AutopilotInterface.h
+        src/MavlinkInterface.h
         src/SerialPortAdapter.h)
 if(UNIX)
     list(APPEND SOURCES src/SerialPortAdapterUnix.cpp

@@ -67,7 +67,7 @@ using namespace std;
 
 #include <common/mavlink.h>
 
-#include "AutopilotInterface.h"
+#include "MavlinkInterface.h"
 #include "SerialPort.h"
 
 
@@ -78,11 +78,11 @@ using namespace std;
 int main(int argc, char **argv);
 int top(int argc, char **argv);
 
-void commands(Autopilot_Interface &autopilot_interface);
+void commands(MavlinkInterface &autopilot_interface);
 void parse_commandline(int argc, char **argv, char *&uart_name, int &baudrate);
 
 // quit handler
-Autopilot_Interface *autopilot_interface_quit;
+MavlinkInterface *autopilot_interface_quit;
 Serial_Port *serial_port_quit;
 void quit_handler( int sig );
 
